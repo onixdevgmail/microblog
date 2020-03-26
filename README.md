@@ -1,4 +1,4 @@
-# Login API
+# Microblog
 
 **Install virtual environment**
 ```bash
@@ -9,15 +9,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Create Database**
-```sudo -u postgres psql
-CREATE DATABASE login_register;
-\q
-```
-```bash
-flask db migrate -m "users table"
-flask db upgrade
-```
 
 **Run application**
 ```bash
