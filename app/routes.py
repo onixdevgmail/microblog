@@ -13,7 +13,7 @@ from app.models import User
 @app.route('/index')
 @login_required
 def index():
-    return render_template("index.html", title='Home Page', posts=posts)
+    return render_template("index.html", title='Home Page')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -76,7 +76,7 @@ def before_request():
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    form = EditProfileForm()
+    form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
