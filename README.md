@@ -9,6 +9,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**.flaskenv**
+```
+Create file microblog/.flaskenv
+Put there your settings like in microblog/.flaskenv.example
+
+MS_TRANSLATOR_KEY must be generated on https://portal.azure.com/
+```
+
 
 **Run application**
 ```bash
