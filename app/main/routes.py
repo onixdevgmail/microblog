@@ -13,6 +13,9 @@ from app.main import bp
 
 @bp.before_app_request
 def before_request():
+    """
+    Updates users last activity
+    """
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
@@ -23,6 +26,11 @@ def before_request():
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+    """
+    Responsible for display users posts and creating new posts
+
+    :return: Landing page "Home"
+    """
     form = PostForm()
     if form.validate_on_submit():
         language = guess_language(form.post.data)
@@ -49,6 +57,11 @@ def index():
 @bp.route('/explore')
 @login_required
 def explore():
+    """
+    Responsible for display all posts in system by order
+
+    :return: Landing page "Explore"
+    """
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.timestamp.desc()).paginate(
         page, current_app.config['POSTS_PER_PAGE'], False)
@@ -64,6 +77,12 @@ def explore():
 @bp.route('/user/<username>')
 @login_required
 def user(username):
+    """
+    Responsible for display users profile and his posts
+
+    :param username: users unique username
+    :return: Landing page "User"
+    """
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
     posts = user.posts.order_by(Post.timestamp.desc()).paginate(
@@ -79,6 +98,11 @@ def user(username):
 @bp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
+    """
+    Responsible for edit users profile
+
+    :return: Landing page "Edit Profile"
+    """
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
@@ -96,6 +120,12 @@ def edit_profile():
 @bp.route('/follow/<username>')
 @login_required
 def follow(username):
+    """
+    Responsible for subscribing for updates on user
+
+    :param username: users unique username
+    :return: Redirect to "Profile"
+    """
     user = User.query.filter_by(username=username).first()
     if user is None:
         flash(_('User %(username)s not found.', username=username))
@@ -112,6 +142,12 @@ def follow(username):
 @bp.route('/unfollow/<username>')
 @login_required
 def unfollow(username):
+    """
+    Responsible for unsubscribe from updates on user
+
+    :param username: users unique username
+    :return: Redirect to "Profile"
+    """
     user = User.query.filter_by(username=username).first()
     if user is None:
         flash(_('User %(username)s not found.', username=username))
@@ -128,6 +164,11 @@ def unfollow(username):
 @bp.route('/translate', methods=['POST'])
 @login_required
 def translate_text():
+    """
+    Responsible for translating text
+
+    :return: translated text
+    """
     return jsonify({'text': translate(request.form['text'],
                                       request.form['source_language'],
                                       request.form['dest_language'])})

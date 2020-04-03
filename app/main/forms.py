@@ -7,6 +7,9 @@ from app.models import User
 
 
 class EditProfileForm(FlaskForm):
+    """
+    Form for editing users profile
+    """
     username = StringField(_l('Username'), validators=[DataRequired()])
     about_me = TextAreaField(_l('About me'),
                              validators=[Length(min=0, max=140)])
@@ -24,5 +27,8 @@ class EditProfileForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
+    """
+    Form for creating new post
+    """
     post = TextAreaField(_l('Say something'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
