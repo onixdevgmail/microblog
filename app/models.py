@@ -43,6 +43,12 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self, size):
+        """
+        Gets avatar for user
+
+        :param size: size
+        :return: avatar pic
+        """
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
@@ -56,10 +62,21 @@ class User(UserMixin, db.Model):
             self.followed.remove(user)
 
     def is_following(self, user):
+        """
+        Count how many following has user
+
+        :param user: user
+        :return: number of following
+        """
         return self.followed.filter(
             followers.c.followed_id == user.id).count() > 0
 
     def followed_posts(self):
+        """
+        Provide posts of user that current user follows
+
+        :return: posts
+        """
         followed = Post.query.join(
             followers, (followers.c.followed_id == Post.user_id)).filter(
             followers.c.follower_id == self.id)
@@ -67,6 +84,12 @@ class User(UserMixin, db.Model):
         return followed.union(own).order_by(Post.timestamp.desc())
 
     def get_reset_password_token(self, expires_in=600):
+        """
+        Provide token token for reset password
+
+        :param expires_in: date
+        :return: token
+        """
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'],
@@ -74,6 +97,12 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def verify_reset_password_token(token):
+        """
+        Checks token for resetting password
+
+        :param token: provided token
+        :return: user object
+        """
         try:
             id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
