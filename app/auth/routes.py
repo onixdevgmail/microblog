@@ -12,6 +12,11 @@ from app.auth.email import send_password_reset_email
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Responsible for logging users to the system
+
+    :return: Landing page "Login" or Redirect to "next page"
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = LoginForm()
@@ -30,12 +35,22 @@ def login():
 
 @bp.route('/logout')
 def logout():
+    """
+    Responsible for logout users from the system
+
+    :return:  Redirect to "Login page"
+    """
     logout_user()
     return redirect(url_for('main.index'))
 
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Responsible for registration users in the system
+
+    :return: Landing page "Register" or Redirect to "login"
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = RegistrationForm()
@@ -52,6 +67,11 @@ def register():
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
+    """
+    Responsible for sending a request for reset users password in the system
+
+    :return: Landing page "Register" or Redirect to "login"
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
@@ -68,6 +88,12 @@ def reset_password_request():
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    """
+    Responsible for reset users password in the system
+
+    :param token: unique users key
+    :return: Landing page "Reset password" or Redirect to "login"
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     user = User.verify_reset_password_token(token)
