@@ -10,7 +10,7 @@ from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import db, login
+from app import db, login, ma
 
 
 @login.user_loader
@@ -197,3 +197,9 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+# Post Schema
+class PostSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'body', 'timestamp', 'user_id', 'language')
