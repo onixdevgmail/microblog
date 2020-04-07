@@ -82,4 +82,7 @@ def get_locale():
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
 
+from flask_marshmallow import Marshmallow
+ma = Marshmallow(create_app)
+
 from app import models
