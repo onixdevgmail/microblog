@@ -25,3 +25,6 @@ class Config(object):
     LANGUAGES = ['en', 'es']
 
     MS_TRANSLATOR_KEY = os.environ.get('MS_TRANSLATOR_KEY')
+
+    GITHUB_OAUTH_CLIENT_ID = os.environ.get("GITHUB_OAUTH_CLIENT_ID")
+    GITHUB_OAUTH_CLIENT_SECRET = os.environ.get("GITHUB_OAUTH_CLIENT_SECRET")

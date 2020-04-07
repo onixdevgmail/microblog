@@ -1,13 +1,16 @@
 from flask import render_template, redirect, url_for, flash, request
-from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
 from flask_babel import _
+from flask_dance.contrib.github import github
+from flask_login import login_user, logout_user, current_user
+from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.urls import url_parse
+
 from app import db
 from app.auth import bp
+from app.auth.email import send_password_reset_email
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
-from app.auth.email import send_password_reset_email
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -106,3 +109,36 @@ def reset_password(token):
         flash(_('Your password has been reset.'))
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
+
+
+@bp.route('/github')
+def github_login():
+    """
+    Login with Github account
+
+    :return: main page
+    """
+    if not github.authorized:
+        return redirect(url_for('github.login'))
+
+    account_info = github.get("/user")
+
+    if account_info.ok:
+        account_info_json = account_info.json()
+
+        username = account_info_json['login']
+        query = User.query.filter_by(username=username)
+
+        try:
+            user = query.one()
+        except NoResultFound:
+            user = User(username=username)
+            db.session.add(user)
+            db.session.commit()
+
+        login_user(user)
+
+        return redirect(url_for('main.index'))
+
+    flash(_('Not exist user'))
+    return redirect(url_for('main.index'))

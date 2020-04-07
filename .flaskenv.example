@@ -8,3 +8,8 @@ MAIL_USERNAME=<your-gmail-username>
 MAIL_PASSWORD=<your-gmail-password>
 
 MS_TRANSLATOR_KEY=<paste-your-key-here>
+
+OAUTHLIB_INSECURE_TRANSPORT=1
+
+GITHUB_OAUTH_CLIENT_ID=*********************
+GITHUB_OAUTH_CLIENT_SECRET=********************
