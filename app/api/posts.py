@@ -1,11 +1,13 @@
+from flask import abort
 from flask import jsonify
 from flask import request
 from flask_login import current_user
+
 from app import db
 from app.api import bp
 from app.api.auth import token_auth
 from app.api.errors import bad_request
-from app.models import Post, PostSchema, User
+from app.models import Post, PostSchema
 
 
 @bp.route('/posts', methods=['GET'])
@@ -57,7 +59,7 @@ def create_post():
     """
     data = request.get_json() or {}
     if 'body' not in data:
-        return bad_request('must include text')
+        return bad_request('Body field is required')
 
     if 'language' not in data or data['language'] == 'UNKNOWN' or len(data['language']) > 5:
         data['language'] = ''
@@ -68,4 +70,28 @@ def create_post():
     return PostSchema().jsonify(post)
 
 
+@bp.route('/posts/<int:id>', methods=['PUT'])
+@token_auth.login_required
+def update_post(id):
+    current_post = Post.query.get_or_404(id)
+    data = request.get_json() or {}
+    if current_post not in current_user.posts:
+        abort(403)
+    if 'body' in data:
+        current_post.body = data['body']
+    if 'language' in data:
+        current_post.language = data['language']
+    db.session.commit()
+    return PostSchema().jsonify(current_post)
 
+
+@bp.route('/posts/<int:id>', methods=['DELETE'])
+@token_auth.login_required
+def delete_post(id):
+    current_post = Post.query.get_or_404(id)
+    if current_post not in current_user.posts:
+        abort(403)
+    db.session.delete(current_post)
+    db.session.commit()
+    result = PostSchema(many=True).dump(Post.query.order_by(Post.timestamp.desc()))
+    return jsonify(result)
