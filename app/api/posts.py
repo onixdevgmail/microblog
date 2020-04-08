@@ -59,7 +59,7 @@ def create_post():
     """
     data = request.get_json() or {}
     if 'body' not in data:
-        return bad_request('must include text')
+        return bad_request('Body field is required')
 
     if 'language' not in data or data['language'] == 'UNKNOWN' or len(data['language']) > 5:
         data['language'] = ''

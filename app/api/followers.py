@@ -23,7 +23,7 @@ def follow(username):
         return bad_request('You cannot follow yourself!')
     current_user.follow(user)
     db.session.commit()
-    return PostSchema().jsonify(current_user)
+    return True
 
 
 @bp.route('/follow/<str:username>', methods=['POST'])
@@ -42,4 +42,4 @@ def unfollow(username):
         return bad_request('You cannot unfollow yourself!')
     current_user.unfollow(user)
     db.session.commit()
-    return PostSchema().jsonify(current_user)
+    return False
