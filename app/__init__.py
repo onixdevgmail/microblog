@@ -1,14 +1,17 @@
 import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+from logging.handlers import SMTPHandler, RotatingFileHandler
+
 from flask import Flask, request, current_app
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask_babel import Babel, lazy_gettext as _l
+from flask_bootstrap import Bootstrap
+from flask_dance.contrib.github import make_github_blueprint
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_bootstrap import Bootstrap
+from flask_migrate import Migrate
 from flask_moment import Moment
-from flask_babel import Babel, lazy_gettext as _l
+from flask_sqlalchemy import SQLAlchemy
+
 from config import Config
 
 db = SQLAlchemy()
@@ -33,6 +36,12 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
     babel.init_app(app)
+
+    app.register_blueprint(make_github_blueprint(client_id=app.config['GITHUB_OAUTH_CLIENT_ID'],
+                                                 client_secret=app.config['GITHUB_OAUTH_CLIENT_SECRET']),
+                           url_prefix='/github_login')
+
+
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
@@ -83,6 +92,7 @@ def get_locale():
 
 
 from flask_marshmallow import Marshmallow
+
 ma = Marshmallow(create_app)
 
 from app import models
