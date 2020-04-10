@@ -54,6 +54,13 @@ def index():
                            prev_url=prev_url)
 
 
+@bp.route('/post/<id>')
+@login_required
+def one_post(id):
+    post = Post.query.filter_by(id=id).first_or_404()
+    return render_template('current_post.html', title=_('Post'), post=post)
+
+
 @bp.route('/explore')
 @login_required
 def explore():
