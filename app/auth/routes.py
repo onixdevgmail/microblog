@@ -184,18 +184,10 @@ def callback():
     else:
         return "User email not available or not verified by Google.", 400
 
-    # Create a user in your db with the information provided
-    # by Google
-    # user = User(
-    #         id_=unique_id, name=users_name, email=users_email )
-
-    # Doesn't exist? Add it to the database.
-    # if not User.query.filter_by(id=unique_id).first():
-    #     User.create(unique_id, users_name, users_email)
-
     query = User.query.filter_by(username=users_name)
 
     try:
+
         user = query.one()
     except NoResultFound:
         user = User(username=users_name, email=users_email)
