@@ -18,10 +18,10 @@ MS_TRANSLATOR_KEY must be generated on https://portal.azure.com/
 ```
 
 **Migration**
-``
+```
 flask db migrate -m 'your message'
 flask db upgrade
-``
+```
 
 **Run application**
 ```bash
