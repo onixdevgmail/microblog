@@ -196,10 +196,11 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
 class Country(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    code = db.Column(db.String(10))
     user_id = db.relationship('User', backref='country', lazy='dynamic')
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return '{} [{}]'.format(self.name, self.code)
 
 
 class Post(db.Model):

@@ -6,9 +6,11 @@ from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
 from app.main.forms import EditProfileForm, PostForm, CommentForm
-from app.models import User, Post, Comment
+from app.models import User, Post, Comment, Country
 from app.translate import translate
 from app.main import bp
+
+from countries_script import add_countries
 
 
 @bp.before_app_request
@@ -20,6 +22,13 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
     g.locale = str(get_locale())
+
+    if not Country.query.all():
+        countries = add_countries()
+        for country in countries:
+            new_country = Country(name=countries[country], code=country)
+            db.session.add(new_country)
+            db.session.commit()
 
 
 @bp.route('/', methods=['GET', 'POST'])
