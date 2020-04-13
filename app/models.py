@@ -51,9 +51,14 @@ class PaginatedAPIMixin(object):
 class User(PaginatedAPIMixin, UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
+    birthday = db.Column(db.DateTime)
+    country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='commentator', lazy='dynamic')
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     followed = db.relationship(
@@ -188,15 +193,37 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         return user
 
 
+class Country(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    user_id = db.relationship('User', backref='country', lazy='dynamic')
+
+    def __repr__(self):
+        return '{}'.format(self.name)
+
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     language = db.Column(db.String(5))
+    comments = db.relationship('Comment', backref='comment', lazy='dynamic')
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    language = db.Column(db.String(5))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    def __repr__(self):
+        return '<Comment {}>'.format(self.body)
 
 
 # Post Schema

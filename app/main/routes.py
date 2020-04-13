@@ -5,8 +5,8 @@ from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
-from app.main.forms import EditProfileForm, PostForm
-from app.models import User, Post
+from app.main.forms import EditProfileForm, PostForm, CommentForm
+from app.models import User, Post, Comment
 from app.translate import translate
 from app.main import bp
 
@@ -54,11 +54,23 @@ def index():
                            prev_url=prev_url)
 
 
-@bp.route('/post/<id>')
+@bp.route('/post/<id>', methods=['GET', 'POST'])
 @login_required
 def one_post(id):
     post = Post.query.filter_by(id=id).first_or_404()
-    return render_template('current_post.html', title=_('Post'), post=post)
+    form = CommentForm()
+    comments = Comment.query.filter_by(post_id=post.id)
+    if form.validate_on_submit():
+        language = guess_language(form.post.data)
+        if language == 'UNKNOWN' or len(language) > 5:
+            language = ''
+        comment = Comment(body=form.post.data, commentator=current_user,
+                          language=language, comment=post)
+        db.session.add(comment)
+        db.session.commit()
+        flash(_('Your comment is now live!'))
+        return redirect(url_for('main.one_post', id=id))
+    return render_template('current_post.html', title=_('Post'), post=post, form=form, comments=comments)
 
 
 @bp.route('/explore')

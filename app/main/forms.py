@@ -32,3 +32,11 @@ class PostForm(FlaskForm):
     """
     post = TextAreaField(_l('Say something'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
+
+
+class CommentForm(FlaskForm):
+    """
+    Form for creating new comment
+    """
+    post = TextAreaField(_l('Comment post'), validators=[DataRequired()])
+    submit = SubmitField(_l('Submit'))

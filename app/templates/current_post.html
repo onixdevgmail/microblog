@@ -4,4 +4,47 @@
 {% block app_content %}
     <h1>{{ _('Current Post') }}</h1>
     {% include '_post.html' %}
+    <h1>{{ _('Comments:') }}</h1>
+    {% for comment in comments %}
+        <table class="table table-hover">
+        <tr>
+            <td width="70px">
+                <a href="{{ url_for('main.user', username=comment.commentator.username) }}">
+                    <img src="{{ comment.commentator.avatar(70) }}"/>
+                </a>
+            </td>
+
+            <td>
+
+                {% set user_link %}
+                <a href="{{ url_for('main.user', username=comment.commentator.username) }}">
+                    {{ comment.commentator.username }}
+                </a>
+                {% endset %}
+                {{ _('%(username)s said %(when)s',
+                            username=user_link, when=moment(comment.timestamp).fromNow()) }},
+
+                <br>
+                <span id="post{{ comment.id }}">{{ comment.body }}</span>
+
+                {% if comment.language and comment.language != g.locale %}
+                    <br><br>
+                    <span id="translation{{ comment.id }}">
+                            <a href="javascript:translate(
+                                        '#comment{{ comment.id }}',
+                                        '#translation{{ comment.id }}',
+                                        '{{ comment.language }}',
+                                        '{{ g.locale }}');">{{ _('Translate') }}</a>
+                        </span>
+                {% endif %}
+
+            </td>
+
+        </tr>
+    </table>
+    {% endfor %}
+    {% if form %}
+        {{ wtf.quick_form(form) }}
+    <br>
+    {% endif %}
 {% endblock %}
