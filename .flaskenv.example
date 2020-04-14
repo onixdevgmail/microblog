@@ -1,5 +1,11 @@
 FLASK_APP=microblog.py
 FLASK_DEBUG=1
+FLASK_ENV=development
+
+SECRET_KEY=your-key
+
+ADMINS=your-email@example.com
+
 
 MAIL_SERVER=smtp.googlemail.com
 MAIL_PORT=587
@@ -8,6 +14,14 @@ MAIL_USERNAME=<your-gmail-username>
 MAIL_PASSWORD=<your-gmail-password>
 
 MS_TRANSLATOR_KEY=<paste-your-key-here>
+
+#DataBase settings
+DATABASE_USER=***
+DATABASE_PASSWORD=****
+DATABASE_HOST=localhost
+DATABASE_NAME=****
+
+SQLALCHEMY_TRACK_MODIFICATIONS=0
 
 
 #Disable security connection to social network
