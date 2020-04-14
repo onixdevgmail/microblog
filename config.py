@@ -28,3 +28,9 @@ class Config(object):
     LANGUAGES = ['en', 'es']
 
     MS_TRANSLATOR_KEY = os.environ.get('MS_TRANSLATOR_KEY')
+
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+    GOOGLE_DISCOVERY_URL = (
+        "https://accounts.google.com/.well-known/openid-configuration"
+    )
