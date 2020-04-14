@@ -11,6 +11,7 @@ Flask==1.1.1
 Flask-Babel==1.0.0
 Flask-BabelEx==0.9.4
 Flask-Bootstrap==3.3.7.1
+Flask-CKEditor==0.4.3
 Flask-Dance==3.0.0
 Flask-Datepicker==0.12
 Flask-Ext==0.1
