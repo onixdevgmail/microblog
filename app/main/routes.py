@@ -200,3 +200,23 @@ def translate_text():
     return jsonify({'text': translate(request.form['text'],
                                       request.form['source_language'],
                                       request.form['dest_language'])})
+
+
+@bp.route('/like', methods=['POST'])
+@login_required
+def post_like():
+    post_id = request.form['id']
+    action = request.form['action']
+    if post_id and action:
+        try:
+            post = Post.query.filter_by(id=post_id).first_or_404()
+            if action == 'like':
+                post.liked_by.append(current_user)
+                db.session.commit()
+            else:
+                post.liked_by.remove(current_user)
+                db.session.commit()
+            return jsonify({'status': 'ok'})
+        except:
+            pass
+    return jsonify({'status': 'ok'})

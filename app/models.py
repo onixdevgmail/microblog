@@ -23,6 +23,11 @@ followers = db.Table('followers',
                      db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
                      )
 
+likes = db.Table('likes',
+                 db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                 db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+                 )
+
 
 class PaginatedAPIMixin(object):
     @staticmethod
@@ -68,6 +73,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime)
+    likes = db.relationship('Post', secondary=likes, backref=db.backref('liked_by', lazy='dynamic'))
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
