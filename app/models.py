@@ -74,6 +74,8 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime)
     likes = db.relationship('Post', secondary=likes, backref=db.backref('liked_by', lazy='dynamic'))
+    subs_id = db.Column(db.Integer, db.ForeignKey('subscribe.id'))
+    subs_expiration = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -199,6 +201,16 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         return user
 
 
+class Subscribe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(10))
+    price = db.Column(db.Integer)
+    user_id = db.relationship('User', backref='subscribe', lazy='dynamic')
+
+    def __repr__(self):
+        return '{}'.format(self.name)
+
+
 class Country(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
@@ -218,7 +230,7 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='comment', lazy='dynamic')
 
     def __repr__(self):
-        return '<Post {}>'.format(self.body)
+        return 'Post {}'.format(self.body)
 
 
 class Comment(db.Model):
@@ -230,7 +242,7 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
 
     def __repr__(self):
-        return '<Comment {}>'.format(self.body)
+        return 'Comment {}'.format(self.body)
 
 
 # Post Schema

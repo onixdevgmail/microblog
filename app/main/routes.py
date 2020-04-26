@@ -1,16 +1,19 @@
 from datetime import datetime
+
+from dateutil.relativedelta import relativedelta
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
-from flask_login import current_user, login_required
 from flask_babel import _, get_locale
+from flask_login import current_user, login_required
 from guess_language import guess_language
-from app import db
-from app.main.forms import EditProfileForm, PostForm, CommentForm
-from app.models import User, Post, Comment, Country
-from app.translate import translate
-from app.main import bp
 
+from app import db
+from app.main import bp
+from app.main.forms import EditProfileForm, PostForm, CommentForm, SubscribeForm
+from app.models import User, Post, Comment, Country, Subscribe
+from app.translate import translate
 from countries_script import add_countries
+from middleware import hello_middleware
 
 
 @bp.before_app_request
@@ -30,10 +33,20 @@ def before_request():
             db.session.add(new_country)
             db.session.commit()
 
+    if not Subscribe.query.all():
+        standard_subs = Subscribe(name='Standard', price=10)
+        advanced_subs = Subscribe(name='Advanced', price=20)
+        pro_subs = Subscribe(name='Pro', price=30)
+        db.session.add(standard_subs)
+        db.session.add(advanced_subs)
+        db.session.add(pro_subs)
+        db.session.commit()
+
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
+@hello_middleware
 def index():
     """
     Responsible for display users posts and creating new posts
@@ -65,6 +78,7 @@ def index():
 
 @bp.route('/post/<id>', methods=['GET', 'POST'])
 @login_required
+@hello_middleware
 def one_post(id):
     post = Post.query.filter_by(id=id).first_or_404()
     form = CommentForm()
@@ -147,6 +161,7 @@ def edit_profile():
 
 @bp.route('/follow/<username>')
 @login_required
+@hello_middleware
 def follow(username):
     """
     Responsible for subscribing for updates on user
@@ -169,6 +184,7 @@ def follow(username):
 
 @bp.route('/unfollow/<username>')
 @login_required
+@hello_middleware
 def unfollow(username):
     """
     Responsible for unsubscribe from updates on user
@@ -204,6 +220,7 @@ def translate_text():
 
 @bp.route('/like', methods=['POST'])
 @login_required
+@hello_middleware
 def post_like():
     post_id = request.form['id']
     action = request.form['action']
@@ -220,3 +237,24 @@ def post_like():
         except:
             pass
     return jsonify({'status': 'ok'})
+
+
+@bp.route('/subscribe', methods=['GET', 'POST'])
+@login_required
+def create_subscribe():
+    form = SubscribeForm()
+    if form.validate_on_submit():
+        duration = int(form.life_time.data)
+        price = form.subs.data.price * duration
+        if duration == 12:
+            price = price - price * 0.1
+        elif duration == 24:
+            price = price - price * 0.2
+        # print(price)
+
+        current_user.subs_id = form.subs.data.id
+        current_user.subs_expiration = datetime.today() + relativedelta(months=duration)
+        db.session.commit()
+        flash(_('You bought new subscribe!'))
+        return redirect(url_for('main.index'))
+    return render_template('subscribe.html', title=_('Buy Subscribe'), form=form)
