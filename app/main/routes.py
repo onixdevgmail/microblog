@@ -1,3 +1,5 @@
+import os
+import stripe
 from datetime import date
 from datetime import datetime
 
@@ -16,6 +18,9 @@ from app.translate import translate
 from countries_script import add_countries
 from middleware import hello_middleware
 
+pub_key = os.environ.get('STRIPE_PUB_KEY')
+secret_key = os.environ.get('STRIPE_SECRET_KEY')
+stripe.api_key = secret_key
 
 @bp.before_app_request
 def before_request():
@@ -36,8 +41,8 @@ def before_request():
 
     if not Subscribe.query.all():
         standard_subs = Subscribe(name='Standard', price=10)
-        advanced_subs = Subscribe(name='Advanced', price=20)
-        pro_subs = Subscribe(name='Pro', price=30)
+        advanced_subs = Subscribe(name='Advanced', price=11)
+        pro_subs = Subscribe(name='Pro', price=13)
         db.session.add(standard_subs)
         db.session.add(advanced_subs)
         db.session.add(pro_subs)
@@ -279,10 +284,26 @@ def create_subscribe():
             price = price - price * 0.1
         elif duration == 24:
             price = price - price * 0.2
+        subs_expiration = datetime.today() + relativedelta(months=duration)
+        subs_id = form.subs.data.id
+        return render_template('buy_subscribe.html', title=_('Buy Subscribe'), pub_key=pub_key, price=price * 100,
+                               subs_expiration=subs_expiration, subs_id=subs_id)
 
-        current_user.subs_id = form.subs.data.id
-        current_user.subs_expiration = datetime.today() + relativedelta(months=duration)
-        db.session.commit()
-        flash(_('You bought new subscribe!'))
-        return redirect(url_for('main.index'))
     return render_template('subscribe.html', title=_('Buy Subscribe'), form=form)
+
+
+@bp.route('/pay/<price>?<subs_expiration>?<subs_id>', methods=['POST'])
+@login_required
+def pay(price, subs_expiration, subs_id):
+    customer = stripe.Customer.create(email=request.form['stripeEmail'], source=request.form['stripeToken'])
+    charge = stripe.Charge.create(
+        customer=customer.id,
+        amount=price,
+        currency='usd',
+        description='The Product'
+    )
+    current_user.subs_id = subs_id
+    current_user.subs_expiration = subs_expiration
+    db.session.commit()
+    flash(_('You bought new subscribe!'))
+    return redirect(url_for('main.index'))
