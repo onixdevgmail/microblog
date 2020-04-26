@@ -64,11 +64,12 @@
     {% endif %}
     {% endblock %}
 
-
-{% block domready %}
-    $('a#like').bind('click', (function (e) {
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('a#like').bind('click', (function (e) {
                 e.preventDefault();
-                $.post('/like', {id: $(this).data('id'), action: $(this).data('action')},
+                $.post('/post/like', {id: $(this).data('id')},
                     function (data) {
                         if (data['status'] == 'ok') {
                             var previous_action = $('a.like').data('action');
@@ -85,4 +86,6 @@
                     }
                 );
             }));
+        });
+    </script>
 {% endblock %}
