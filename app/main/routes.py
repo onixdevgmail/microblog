@@ -264,7 +264,7 @@ def post_like():
     else:
         post.liked_by.append(current_user)
         db.session.commit()
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'post_total_likes': post.liked_by.count()})
 
 
 @bp.route('/subscribe', methods=['GET', 'POST'])
