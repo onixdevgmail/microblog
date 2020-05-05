@@ -1,8 +1,9 @@
 import os
-import stripe
 from datetime import date
 from datetime import datetime
 
+import feedparser
+import stripe
 from dateutil.relativedelta import relativedelta
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
@@ -21,6 +22,22 @@ from middleware import hello_middleware
 pub_key = os.environ.get('STRIPE_PUB_KEY')
 secret_key = os.environ.get('STRIPE_SECRET_KEY')
 stripe.api_key = secret_key
+
+
+def posts_from_world_news():
+    yahoo_user = User.query.filter_by(username='Yahoo').first()
+    if not yahoo_user:
+        yahoo_user = User(username='Yahoo', email='yahoo@yahoo.com')
+        db.session.add(yahoo_user)
+        db.session.commit()
+    post = Post.query.filter_by(author=yahoo_user).order_by(Post.timestamp.desc()).first()
+    if not post or post.timestamp.date() != date.today():
+        feed = feedparser.parse("https://news.yahoo.com/rss/mostviewed")
+        for i in range(5):
+            article = feed['entries'][i]
+            post = Post(body=article.get("title") + '\n' + article.get("description"), author=yahoo_user)
+            db.session.add(post)
+            db.session.commit()
 
 
 @bp.before_app_request
@@ -53,6 +70,8 @@ def before_request():
         current_user.subs_id = None
         current_user.subs_expiration = None
         db.session.commit()
+
+    posts_from_world_news()
 
 
 @bp.route('/', methods=['GET', 'POST'])

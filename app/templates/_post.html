@@ -19,7 +19,7 @@
             <a href="{{ url_for('main.one_post', id=post.id) }}">Go to post detail</a>
 
             <br>
-            <span id="post{{ post.id }}">{{ post.body }}</span>
+            <span id="post{{ post.id }}">{{ post.body | safe }}</span>
 
             {% if post.language and post.language != g.locale %}
                 <br><br>
