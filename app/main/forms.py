@@ -1,4 +1,3 @@
-from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length
@@ -7,6 +6,7 @@ from app.models import User, Subscribe
 from flask_ckeditor import CKEditorField
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
+
 
 class EditProfileForm(FlaskForm):
     """
@@ -49,9 +49,6 @@ class SubscribeForm(FlaskForm):
     def get_subscribes():
         return Subscribe.query.order_by(Subscribe.id).all()
 
-    # name = SelectField(_l('Subscribe'), choices=[('Standard ', 'Standard'),
-    #                                              ('Advance ', 'Advance '),
-    #                                              ('Pro', 'Pro')])
     subs = QuerySelectField('Subscribe', query_factory=get_subscribes, validators=[DataRequired()])
     life_time = SelectField(_l('Duration'), choices=[('1', '1 month'),
                                                      ('3', '3 months '),
