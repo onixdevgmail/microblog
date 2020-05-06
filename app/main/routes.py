@@ -3,6 +3,7 @@ from datetime import date
 from datetime import datetime
 
 import feedparser
+import requests
 import stripe
 from dateutil.relativedelta import relativedelta
 from flask import render_template, flash, redirect, url_for, request, g, \
@@ -283,7 +284,7 @@ def post_like():
     else:
         post.liked_by.append(current_user)
         db.session.commit()
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'post_total_likes': post.liked_by.count()})
 
 
 @bp.route('/subscribe', methods=['GET', 'POST'])
@@ -320,3 +321,21 @@ def pay(price, subs_expiration, subs_id):
     db.session.commit()
     flash(_('You bought new subscribe!'))
     return redirect(url_for('main.index'))
+
+
+@bp.route('/weather', methods=['GET'])
+def weather():
+    res = requests.get('https://ipinfo.io/')
+    data = res.json()
+    city = data['city']
+    url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid=271d1234d3f497eed5b1d80a07b3fcd1'
+    r = requests.get(url.format(city)).json()
+
+    weather_data = {
+        'city': city,
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    return weather_data
