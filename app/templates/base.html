@@ -22,6 +22,16 @@
                     <li><a href="{{ url_for('main.explore') }}">{{ _('Explore') }}</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <div class="media-left">
+                                <figure id="icon" class="image is-50x50"></figure>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="city"></span><br>
+                        <span class="description"></span><br>
+                        <span class="temperature"></span><span>° F</span>
+                    </li>
                     {% if current_user.is_anonymous %}
                     <li><a href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></li>
                     <li><a href="{{ url_for('auth.google_login') }}">{{ _('Google Login') }}</a></li>
@@ -67,6 +77,17 @@
                 $(destElem).text("{{ _('Error: Could not contact server.') }}");
             });
         }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $.get('/weather',function (weather) {
+                var icon = '<img id="icon" src="http://openweathermap.org/img/w/'+ weather['icon']+'.png" alt="Image">'
+                document.getElementById('icon').innerHTML = icon;
+                $('span.city').text(weather['city']);
+                $('span.description').text(weather['description'], weather['temperature']);
+                $('span.temperature').text(weather['temperature']);
+            })
+        });
     </script>
     {% block js %}
     {% endblock %}
