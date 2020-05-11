@@ -16,7 +16,8 @@
             {{ _('%(username)s said %(when)s',
                         username=user_link, when=moment(post.timestamp).fromNow()) }},
 
-            <a href="{{ url_for('main.one_post', id=post.id) }}">Go to post detail</a>
+            <a class="btn btn-primary" href="{{ url_for('main.one_post', id=post.id) }}">Go to post detail</a>
+            <a class="btn btn-primary" href="{{ url_for('main.pdf_page', id=post.id) }}">Create PDF</a>
 
             <br>
             <span id="post{{ post.id }}">{{ post.body | safe }}</span>
