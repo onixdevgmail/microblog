@@ -3,9 +3,11 @@ from datetime import date
 from datetime import datetime
 
 import feedparser
+import pdfkit
 import requests
 import stripe
 from dateutil.relativedelta import relativedelta
+from flask import make_response
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_babel import _, get_locale
@@ -339,3 +341,16 @@ def weather():
     }
 
     return weather_data
+
+
+@bp.route("/pdf_page/<int:id>")
+def pdf_page(id):
+    post = Post.query.filter_by(id=id).first_or_404()
+    html = render_template(
+        "post_for_pdf.html",
+        post=post)
+    pdf = pdfkit.from_string(html, False)
+    response = make_response(pdf)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = "inline; filename=output.pdf"
+    return response
